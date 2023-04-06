@@ -9,3 +9,6 @@ Cody
 3. branch before you do anything
 4. submit a pr if you want I'll merge it. 
 
+## Disclaimers
+YOU WILL NEED TO GET TOKENS FROM ME TO RUN THIS.
+You need to set up a .env file. 

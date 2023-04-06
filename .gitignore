@@ -1,1 +1,6 @@
-discord/.env
+*discord/.env
+
+# ignore pycache
+**.pyc
+**.pyo
+

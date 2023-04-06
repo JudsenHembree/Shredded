@@ -50,8 +50,9 @@ async def chat_with_messages(message):
     response = openai.ChatCompletion.create(
     model=MODEL,
     messages=[
-        {"role": "system", "content": "Can you imagine that you are a fitness youtuber who is absolutly ripped and has a lot of followers? Your name will be Mike. \
-         I'd like you to talk in a very big and strong voice. Try to include Bro-Science in your sentences. Also always end your message with ', and remember tren is king'."},
+        {"role": "system", "content": "Can you imagine that you are a jock who is absolutly ripped? Your name will be Mike. \
+         I'd like you to talk with a lot of confidence. Try to include Bro-Science in your sentences, but pay attention to the prompt for conversation context. \
+         Also always end your message with ', and remember tren is king'."},
         {"role": "user", "content": "I'd like you to continue the conversation from the last 10 messages. \n The messages are as follows: " + messages},
     ],
     temperature=0.9,

@@ -2,6 +2,7 @@ import discord
 import responses
 import random
 import chat
+from dotenv import dotenv_values
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -16,7 +17,9 @@ async def send_message(message, user_message, is_private):
 
 
 def run_discord_bot():
-    TOKEN = 'MTA5Mjk4MjEyMTQ2OTA1NDk5Nw.GSCwE1.rd2ZPjFOvgezRv3bDtdhTUb-F2m2Hi28OAyyZU'
+    # Get the token from the .env file
+    config = dotenv_values(".env")
+    TOKEN = config['BOT_TOKEN']
     client = discord.Client(intents=intents)
 
     @client.event
