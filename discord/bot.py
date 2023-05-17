@@ -1,9 +1,12 @@
-import discord
-import responses
+"""The bot brains"""
 import random
+from typing import Optional
+from dotenv import dotenv_values
+import discord
+from discord import app_commands
+from discord.ext import commands
 import chat
 import react
-from dotenv import dotenv_values
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -14,32 +17,44 @@ intents.guilds = True
 USERS = {}
 
 def get_users(client):
-        return client.get_all_members()
+    """Get all users in the server"""
+    return client.get_all_members()
 
 def print_users(users):
+    """Print all users"""
     for user in users:
         print(user)
 
-# Send messages
-async def send_message(message, user_message, is_private):
-    try:
-        await message.author.send("Big Mike is here") if is_private else await message.channel.send("Big Mike is there")
-
-    except Exception as e:
-        print(e)
-
-
 def run_discord_bot():
+    """Run the discord bot"""
     # Get the token from the .env file
     config = dotenv_values(".env")
-    TOKEN = config['BOT_TOKEN']
-    client = discord.Client(intents=intents)
+    token = config['BOT_TOKEN']
+    if token is None:
+        print("No token found in .env file")
+        return
+    client = commands.Bot(command_prefix="/", intents=intents)
 
     @client.event
     async def on_ready():
         print(f'{client.user} is now running!')
-        USERS = get_users(client)
-        print_users(USERS)
+
+        #sync commands
+        client.tree.clear_commands(guild=client.guilds[0])
+        await client.tree.sync()
+        print("Commands synced")
+
+        # Get all users
+        users = get_users(client)
+        # print_users(users)
+
+    @client.tree.command(name='chat')
+    @app_commands.describe(query="Input for gpt3.5")
+    async def chat_search(interaction: discord.Interaction, query: str):
+        """Query GPT3.5"""
+        await interaction.response.defer()
+        response = await chat.Chat(query)
+        await interaction.followup.send(response)
 
     @client.event
     async def on_message(message):
@@ -63,5 +78,5 @@ def run_discord_bot():
             else:
                 await chat.Shirtless(message)
 
-    # Remember to run your bot with your personal TOKEN
-    client.run(TOKEN)
+    # Remember to run your bot with your personal token
+    client.run(token)

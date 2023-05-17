@@ -4,7 +4,7 @@ import openai
 MODEL = "gpt-3.5-turbo"
 
 async def chat_for_raw_at(message):
-    response = openai.ChatCompletion.create(
+    response = await openai.ChatCompletion.acreate(
     model=MODEL,
     messages=[
         {"role": "system", "content": "Can you imagine that you are a fitness youtuber who is absolutly ripped and has a lot of followers? Your name will be Mike. \
@@ -13,6 +13,7 @@ async def chat_for_raw_at(message):
     ],
     temperature=0.9,
     max_tokens=250,
+    n=1,
     )
     await message.channel.send(response["choices"][0]["message"]["content"])
 
@@ -47,7 +48,7 @@ async def get_last_10_messages(message):
 
 async def chat_with_messages(message):
     messages = await get_last_10_messages(message)
-    response = openai.ChatCompletion.create(
+    response = await openai.ChatCompletion.acreate(
     model=MODEL,
     messages=[
         {"role": "system", "content": "Can you imagine that you are a jock who is absolutly ripped? Your name will be Mike. \
@@ -57,13 +58,14 @@ async def chat_with_messages(message):
     ],
     temperature=0.9,
     max_tokens=250,
+    n=1,
     )
     if response["choices"][0]["message"]["content"].startswith("Mike: ") == True:
         response["choices"][0]["message"]["content"] = response["choices"][0]["message"]["content"].replace("Mike: ", "")
     await message.channel.send(response["choices"][0]["message"]["content"])
 
 async def Shirtless(message):
-    response = openai.ChatCompletion.create(
+    response = await openai.ChatCompletion.acreate(
     model=MODEL,
     messages=[
         {"role": "system", "content": "Can you imagine that you are a fitness youtuber who is absolutly ripped and has a lot of followers? Your name will be Mike. \
@@ -72,5 +74,19 @@ async def Shirtless(message):
     ],
     temperature=0.9,
     max_tokens=250,
+    n=1,
     )
     await message.channel.send(response["choices"][0]["message"]["content"], file=discord.File('images_of_mike/beach.jpg'))
+
+async def Chat(message):
+    response = await openai.ChatCompletion.acreate(
+    model=MODEL,
+    messages=[
+        {"role": "system", "content": "Be as precise as possible. \
+                Try to be factual and not opinionated."},
+        {"role": "user", "content": message},
+    ],
+    max_tokens=250,
+    n=1,
+    )
+    return response["choices"][0]["message"]["content"]
