@@ -1,2 +1,2 @@
 all:
-	python main.py
+	python3 sewer_server.py --developer

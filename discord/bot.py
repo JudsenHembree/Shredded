@@ -1,12 +1,13 @@
 """The bot brains"""
 import random
+import tempfile
 from typing import Optional
 from dotenv import dotenv_values
 import discord
-from discord import app_commands
-from discord.ext import commands
 import chat
 import react
+import graph
+import tree_of_threads
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -25,36 +26,51 @@ def print_users(users):
     for user in users:
         print(user)
 
-def run_discord_bot():
+def run_discord_bot(developer_mode: Optional[bool] = False):
     """Run the discord bot"""
     # Get the token from the .env file
     config = dotenv_values(".env")
     token = config['BOT_TOKEN']
+    if developer_mode:
+        token = config['BOT_TOKEN_DEV']
     if token is None:
         print("No token found in .env file")
         return
-    client = commands.Bot(command_prefix="/", intents=intents)
+    client = discord.Bot(command_prefix="/", intents=intents)
 
     @client.event
     async def on_ready():
         print(f'{client.user} is now running!')
 
         #sync commands
-        client.tree.clear_commands(guild=client.guilds[0])
-        await client.tree.sync()
+        client.commands.clear()
+        await client.sync_commands()
         print("Commands synced")
 
         # Get all users
         users = get_users(client)
         # print_users(users)
 
-    @client.tree.command(name='chat')
-    @app_commands.describe(query="Input for gpt3.5")
+    @client.slash_command(name='chat')
     async def chat_search(interaction: discord.Interaction, query: str):
         """Query GPT3.5"""
         await interaction.response.defer()
-        response = await chat.Chat(query)
-        await interaction.followup.send(response)
+        channel = interaction.channel
+        threadName = "Chat with GPT3.5"
+        thread = await channel.create_thread(name=threadName, type=discord.ChannelType.public_thread)
+        chain = tree_of_threads.spawn_chain(thread)
+        response = await chat.Chat(interaction.user.name, query, chain)
+        await thread.send(response)
+        await interaction.followup.send("Thread created", embed=discord.Embed(title=threadName, url=thread.jump_url))
+
+    @client.slash_command(name='graph')
+    async def graph_test(interaction: discord.Interaction):
+        """Graph a line"""
+        await interaction.response.defer()
+        fig = graph.graph_test()
+        with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
+            fig.savefig(tmp.name)
+            await interaction.followup.send(file=discord.File(tmp.name))
 
     @client.event
     async def on_message(message):
@@ -64,19 +80,10 @@ def run_discord_bot():
 
         if str(message.author).find("Hilly") != -1:
             await react.react(message)
-        # Get data about the user
-        username = str(message.author)
-        user_message = str(message.content)
-        channel = str(message.channel)
-
-        # Debug printing
-        print(f"{username} said: '{user_message}' ({channel})")
-
-        if client.user in message.mentions:
-            if random.random() < 0.1:
-                await chat.chat_with_messages(message)
-            else:
-                await chat.Shirtless(message)
-
+        is_thread, chain = tree_of_threads.check_for_thread(message.channel.id)
+        if is_thread:
+            print("Thread exists")
+            response = await chat.Chat(message.author.name, message.content, chain)
+            await message.channel.send(response)
     # Remember to run your bot with your personal token
     client.run(token)
