@@ -1,5 +1,6 @@
 """The bot brains"""
 import random
+import ffmpeg
 import tempfile
 from typing import Optional
 from dotenv import dotenv_values
@@ -8,6 +9,7 @@ import chat
 import react
 import graph
 import tree_of_threads
+from custom_wheel.wheel import wheel
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -70,6 +72,16 @@ def run_discord_bot(developer_mode: Optional[bool] = False):
         fig = graph.graph_test()
         with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
             fig.savefig(tmp.name)
+            await interaction.followup.send(file=discord.File(tmp.name))
+
+    @client.slash_command(name='wheel')
+    async def wheel_picker(interaction: discord.Interaction, games_seperated_by_space: str):
+        """Pick a random game"""
+        #generate images
+        await interaction.response.defer()
+        games = games_seperated_by_space.split(" ")
+        with tempfile.NamedTemporaryFile(suffix=".gif") as tmp:
+            wheel(games, tmp)
             await interaction.followup.send(file=discord.File(tmp.name))
 
     @client.event
