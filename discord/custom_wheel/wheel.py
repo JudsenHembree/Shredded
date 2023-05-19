@@ -37,7 +37,7 @@ def wheel(games, tmpfile):
                     break
                 ax.clear()
                 fig.patch.set_facecolor('black')
-                ax.pie(data, labels=labels, startangle=angle, labeldistance=0.5)
+                ax.pie(data, labels=labels, startangle=angle, labeldistance=0.5, rotatelabels=True)
                 plt.arrow(0, 2.5, 0, -1, color="red", width=0.1)
                 plt.draw()
                 angle += angles[inner_count]
