@@ -71,9 +71,18 @@ class IntroMusic(commands.Cog):
                            description="Must be a Spotify URL and \
                                    Not a playlist", required=True),
                                     Option(input_type=int, name="start_time",
-                                           description="Start time in seconds")])
-    async def select_intro(self, ctx: ApplicationContext, url: str, start_time: int):
+                                           description="Start time in seconds"),
+                                    Option(input_type=int, name="duration",
+                                           description="Duration in seconds < 10")])
+    async def select_intro(self, ctx: ApplicationContext, url: str, start_time: int,
+                           duration: int = 7 ):
         await ctx.defer()
+
+        if int(duration) > 10:
+            await ctx.followup.send("Duration must be less than 10 seconds!")
+            return
+
+        duration_str = str(duration)
         user = ctx.author
         dir = "/tmp/music/" + str(user)
         if start_time is None:
@@ -96,7 +105,8 @@ class IntroMusic(commands.Cog):
 
         song_download = glob(dir + "/*.mp3")[0]
         proc = await asyncio.create_subprocess_shell("ffmpeg -ss " + str(start_time) +
-                                                     " -i \"" + song_download + "\" -t 7 -f wav \""
+                                                     " -i \"" + song_download + "\" -t " 
+                                                     + duration_str + " -f wav \""
                                                      + song_download + "_clip.wav\"",
                                                      stdout=asyncio.subprocess.PIPE,
                                                      stderr=asyncio.subprocess.PIPE)
