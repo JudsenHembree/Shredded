@@ -1,6 +1,6 @@
 *discord/.env
+*discord/intro_music
 
 # ignore pycache
 **.pyc
 **.pyo
-
