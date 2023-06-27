@@ -41,11 +41,11 @@ class IntroMusic(commands.Cog):
         dir = "intro_music/" + str(member)
         if not path.exists(dir):
             return
-        if len(glob(dir + "/*.mp3")) == 0:
+        if len(glob(dir + "/*.wav")) == 0:
             return
 
         # load the song
-        song_download = glob(dir + "/*.mp3")[0]
+        song_download = glob(dir + "/*.wav")[0]
 
         # have mike join the voice channel
         voice_client = await channel.connect()
@@ -96,8 +96,8 @@ class IntroMusic(commands.Cog):
 
         song_download = glob(dir + "/*.mp3")[0]
         proc = await asyncio.create_subprocess_shell("ffmpeg -ss " + str(start_time) +
-                                                     " -i \"" + song_download + "\" -t 7 \""
-                                                     + song_download + "_clip.mp3\"",
+                                                     " -i \"" + song_download + "\" -t 7 -f wav \""
+                                                     + song_download + "_clip.wav\"",
                                                      stdout=asyncio.subprocess.PIPE,
                                                      stderr=asyncio.subprocess.PIPE)
 
@@ -114,12 +114,12 @@ class IntroMusic(commands.Cog):
                 os.remove(f)
 
         proc = await asyncio.create_subprocess_shell("cp \"" + song_download + 
-                                                     "_clip.mp3\" intro_music/" + str(user)
+                                                     "_clip.wav\" intro_music/" + str(user)
                                                      )
                     
         await ctx.followup.send("Intro music selected! Use /music play to play it.",
                                 ephemeral=True,
-                                file=File(song_download + "_clip.mp3"))
+                                file=File(song_download + "_clip.wav"))
 
     @Music_Manager.command(name='play', 
                            description="Play your intro music.")
@@ -141,7 +141,7 @@ class IntroMusic(commands.Cog):
             await ctx.followup.send("You haven't selected any intro music yet! \
                               Use /music select_intro to select some.")
             return
-        if len(glob(dir + "/*.mp3")) == 0:
+        if len(glob(dir + "/*.wav")) == 0:
             await ctx.followup.send("You haven't selected any intro music yet! \
                               Use /music select_intro to select some.")
             return
@@ -152,7 +152,7 @@ class IntroMusic(commands.Cog):
             return
 
         # load the song
-        song_download = glob(dir + "/*.mp3")[0]
+        song_download = glob(dir + "/*.wav")[0]
 
         # have mike join the voice channel
         await channel.connect()

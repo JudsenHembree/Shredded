@@ -28,7 +28,7 @@ def run_discord_bot(developer_mode: Optional[bool] = False):
         print("No token found in .env file")
         return
     client = discord.Bot(intents=intents)
-    cog_list = ['cogs.eta', 'cogs.wheel',
+    cog_list = ['cogs.wheel',
                 'cogs.coby', 'cogs.intro_music',
                 'cogs.chat']
     for cog in cog_list:
