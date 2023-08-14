@@ -1,5 +1,6 @@
 .env
 intro_music
+sewer
 
 # ignore pycache
 **.pyc

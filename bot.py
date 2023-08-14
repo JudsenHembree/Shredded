@@ -30,7 +30,7 @@ def run_discord_bot(developer_mode: Optional[bool] = False):
     client = discord.Bot(intents=intents)
     cog_list = ['cogs.wheel', 'cogs.eta',
                 'cogs.coby', 'cogs.intro_music',
-                'cogs.chat']
+                'cogs.chat', 'cogs.fit']
     for cog in cog_list:
         client.load_extension(cog)
 
