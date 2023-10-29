@@ -30,14 +30,13 @@ class IntroMusic(commands.Cog):
                                               related commands.")
 
     async def play_intro(self, member: Member, channel: VoiceChannel):
-        print("playing intro music for " + str(member) + " in " + str(channel) + "!")
-
         if self.is_playing:
             return
         if not member.voice:
             return
         if channel is None:
             return
+
         dir = "intro_music/" + str(member)
         if not path.exists(dir):
             return
@@ -52,7 +51,7 @@ class IntroMusic(commands.Cog):
         voice_client.play(FFmpegPCMAudio(song_download))
         self.is_playing = True
         while voice_client.is_playing():
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.1)
         self.is_playing = False
         await voice_client.disconnect()
 
@@ -79,7 +78,8 @@ class IntroMusic(commands.Cog):
         await ctx.defer()
 
         if int(duration) > 10:
-            await ctx.followup.send("Duration must be less than 10 seconds!")
+            await ctx.followup.send("Duration must be less than 10 seconds!",
+                                    ephemeral=True)
             return
 
         duration_str = str(duration)
@@ -100,7 +100,8 @@ class IntroMusic(commands.Cog):
                                                      cwd=dir)
         _, stderr = await proc.communicate()
         if proc.returncode != 0:
-            await ctx.followup.send("Error during download: " + stderr.decode())
+            await ctx.followup.send("Error during download: " + stderr.decode(),
+                                    ephemeral=True)
             return
 
         song_download = glob(dir + "/*.mp3")[0]
@@ -113,7 +114,8 @@ class IntroMusic(commands.Cog):
 
         _, stderr = await proc.communicate()
         if proc.returncode != 0:
-            await ctx.followup.send("Error during clipping: " + stderr.decode())
+            await ctx.followup.send("Error during clipping: " + stderr.decode(),
+                                    ephemeral=True)
             return
 
         # copy to local directory
@@ -136,29 +138,35 @@ class IntroMusic(commands.Cog):
     async def play(self, ctx: ApplicationContext):
         await ctx.defer()
         if self.is_playing:
-            await ctx.followup.send("Mike is already playing music! Wait your turn.")
+            await ctx.followup.send("Mike is already playing music! Wait your turn.",
+                                    ephemeral=True)
             return
         user = ctx.author
         if not ctx.author.voice:
-            await ctx.followup.send("You must be in a voice channel to play intro music!")
+            await ctx.followup.send("You must be in a voice channel to play intro music!",
+                                    ephemeral=True)
             return
         channel = ctx.author.voice.channel
         if channel is None:
-            await ctx.followup.send("You must be in a voice channel to play intro music!")
+            await ctx.followup.send("You must be in a voice channel to play intro music!",
+                                    ephemeral=True)
             return
         dir = "intro_music/" + str(user)
         if not path.exists(dir):
             await ctx.followup.send("You haven't selected any intro music yet! \
-                              Use /music select_intro to select some.")
+                              Use /music select_intro to select some.",
+                                    ephemeral=True)
             return
         if len(glob(dir + "/*.wav")) == 0:
             await ctx.followup.send("You haven't selected any intro music yet! \
-                              Use /music select_intro to select some.")
+                              Use /music select_intro to select some.",
+                                    ephemeral=True)
             return
 
         # check if mike is already playing Music
         if self.is_playing:
-            await ctx.followup.send("Mike is already playing music! Wait your turn.")
+            await ctx.followup.send("Mike is already playing music! Wait your turn.",
+                                    ephemeral=True)
             return
 
         # load the song

@@ -47,6 +47,8 @@ class ChatCog(commands.Cog):
         self.bot = bot
         self.chains = {}
         self.key = openai_key
+        #TODO: add a mongo db for all threads
+        #self.mongo_chains
 
         self.template = """You are a chatbot talking with one to many participants.
         You have a gymbro personality. 
@@ -78,14 +80,12 @@ class ChatCog(commands.Cog):
         """Spawn a new chain"""
         if thread_id not in self.chains:
             self.chains[thread_id] = self.create_chain(self.key)
-        else:
-            print("Chain already exists")
+        #TODO: Search mongo for the threadid
         return self.chains[thread_id]
 
     def check_for_thread(self, thread_id: int):
         """Check if a thread exists"""
         if thread_id in self.chains:
-            print("Thread exists")
             return True, self.chains[thread_id]
         return False, None
 
@@ -100,16 +100,16 @@ class ChatCog(commands.Cog):
             response = await chain.apredict(Message=user + ": " + message.content)
             await message.channel.send(response)
 
+            # TODO: update the mongo entry
+
     chatter = SlashCommandGroup("chat", "Chat with GPT3.5")
     
     async def call_gpt(self, ctx: ApplicationContext, prompt: str, thread_name: str):
         """Call GPT3.5 via langchain"""
-        print("Calling GPT3.5")
         # get the channel for the thread
         channel = ctx.channel
         user = ctx.author.name
         if channel is None or user is None:
-            print("Channel or user is None")
             return
         # create a thread with the thread name
         if channel is not None:
@@ -140,7 +140,6 @@ class ChatCog(commands.Cog):
         initial_prompt = chat.val1
         if thread_name is None or initial_prompt is None:
             await ctx.send("Please fill out all fields")
-            print("Please fill out all fields")
             return
         await self.call_gpt(ctx, initial_prompt, thread_name)
 
