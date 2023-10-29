@@ -34,6 +34,8 @@ def run_discord_bot(developer_mode: Optional[bool] = False):
     for cog in cog_list:
         client.load_extension(cog)
 
+    heart = client.load_extension('cogs.heartbeat')
+
     @client.event
     async def on_ready():
         print(f'{client.user} is now running!')
